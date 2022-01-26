@@ -13,6 +13,8 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 use App\Models\User;
 
+use App\Jobs\SendEmailRegistrationJob;
+
 class RegisterController extends ResponseController
 {
     /**
@@ -36,6 +38,11 @@ class RegisterController extends ResponseController
         $input = $request->all();
         $input['password'] = bcrypt($input['password']);
         $user = User::create($input);
+
+        if($user){
+            dispatch(new SendEmailRegistrationJob($input['email']));
+        }
+        
     
 
         return $this->sendResponse($user, 'User successfully registered.');
